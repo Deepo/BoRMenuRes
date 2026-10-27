@@ -61,5 +61,5 @@ target("BoRMenuRes")
         end
     end
 
--- The loader shipped next to it is Ultimate ASI Loader (ThirteenAG), as dsound.dll; our own loader
+-- The loader shipped next to it is Ultimate ASI Loader (ThirteenAG), as winmm.dll; our own loader
 -- (src/asiloader, 1.0.0) was dropped in 1.0.1 and is in the git history.

@@ -3,7 +3,7 @@ Third-party code in BoRMenuRes:
   BoRMenuRes.asi   SafetyHook (Boost Software License 1.0) and Zydis with Zycore (MIT), which make its
                    function hooks, and mINI (MIT), which reads its settings. Compiled into the .asi; the
                    source is in external/ (git submodules).
-  dsound.dll       Ultimate ASI Loader by ThirteenAG (MIT), the official x64 release's dinput8.dll,
+  winmm.dll        Ultimate ASI Loader by ThirteenAG (MIT), the official x64 release's dinput8.dll,
                    unchanged except for its name. Source: https://github.com/ThirteenAG/Ultimate-ASI-Loader
 
 The plugin's version information, logger and build layout follow Lyall's game fixes (MIT).
@@ -141,7 +141,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ==============================================================================
-Ultimate ASI Loader (dsound.dll)
+Ultimate ASI Loader (winmm.dll)
 https://github.com/ThirteenAG/Ultimate-ASI-Loader
 ------------------------------------------------------------------------------
 MIT License

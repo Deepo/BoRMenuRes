@@ -14,8 +14,8 @@
 // settings, putting them back when the menu closes (menu_fix.cpp). It also skips the start-up video and Game Freak
 // logo the way the game's click-to-skip does, once the game allows it (intro_skip.cpp).
 //
-// Loaded by an ASI loader from the game folder at start-up: the release ships Ultimate ASI Loader as dsound.dll (or
-// renamed to winmm.dll when another mod needs dsound.dll). Made for the Xbox app / PC Game Pass build (1.1.1.0 and
+// Loaded by an ASI loader from the game folder at start-up: the release ships Ultimate ASI Loader as winmm.dll (so
+// mods with their own dsound.dll stay as they are). Made for the Xbox app / PC Game Pass build (1.1.1.0 and
 // 1.1.2.0; reported to work on Steam); the engine functions it needs are found by byte pattern (engine.cpp), and if
 // any is missing the game is left untouched and the log says so, listing the closest places it found. Files:
 // BoRMenuRes.ini (read) and BoRMenuRes.log (previous run: .prev.log) next to the plugin.
@@ -29,9 +29,9 @@ static bool IsGameExe(const std::wstring& name)
            _wcsicmp(name.c_str() + name.size() - kSuffix.size(), kSuffix.data()) == 0;
 }
 
-// For a build or setup the plugin hasn't seen yet: whether the exe imports dsound.dll (the shipped loader is that
-// file, and must load with the exe, before engine code runs), which dsound.dll and winmm.dll (the loader's other
-// name here) are loaded, and how long after the process started the plugin got loaded.
+// For a build or setup the plugin hasn't seen yet: whether the exe imports dsound.dll (1.0.0's loader was that file,
+// and a loader must load with the exe, before engine code runs), which dsound.dll and winmm.dll (the shipped loader)
+// are loaded, and how long after the process started the plugin got loaded.
 static void LogStartup(HMODULE exe)
 {
     const auto base = reinterpret_cast<const uint8_t*>(exe);
