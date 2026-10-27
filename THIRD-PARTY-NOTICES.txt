@@ -3,7 +3,8 @@ Third-party code in BoRMenuRes:
   BoRMenuRes.asi   SafetyHook (Boost Software License 1.0) and Zydis with Zycore (MIT), which make its
                    function hooks, and mINI (MIT), which reads its settings. Compiled into the .asi; the
                    source is in external/ (git submodules).
-  dsound.dll       no third-party code.
+  dsound.dll       Ultimate ASI Loader by ThirteenAG (MIT), the official x64 release's dinput8.dll,
+                   unchanged except for its name. Source: https://github.com/ThirteenAG/Ultimate-ASI-Loader
 
 The plugin's version information, logger and build layout follow Lyall's game fixes (MIT).
 
@@ -120,6 +121,32 @@ https://codeberg.org/Lyall
 MIT License
 
 Copyright (c) 2026 Lyall
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+==============================================================================
+Ultimate ASI Loader (dsound.dll)
+https://github.com/ThirteenAG/Ultimate-ASI-Loader
+------------------------------------------------------------------------------
+MIT License
+
+Copyright (c) 2023 ThirteenAG
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

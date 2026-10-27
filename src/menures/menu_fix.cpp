@@ -20,9 +20,9 @@
 //    TexelsPerPixel 0.64): while the capture exists they are raised through UKismetSystemLibrary::
 //    ExecuteConsoleCommand, and put back when it is gone (gameplay uses the same classic shadow maps).
 // Everything runs in the UGameEngine::Tick hook, after the engine's own tick, on the game thread. A second hook on
-// StaticConstructObject_Internal only notes a newly made capture component (any thread), so the tick picks it up
-// the next frame instead of waiting for the object scan, whose full pass takes about a second (the preview would show
-// at 1024 for that long). Both hooks also drive the start-up logo skip (intro_skip.cpp).
+// StaticConstructObject_Internal (made at the first tick) only notes a newly made capture component (any thread), so
+// the tick picks it up the next frame instead of waiting for the object scan, whose full pass takes about a second
+// (the preview would show at 1024 for that long). Both hooks also drive the start-up logo skip (intro_skip.cpp).
 namespace MenuFix
 {
     namespace
@@ -288,6 +288,25 @@ namespace MenuFix
                      *reinterpret_cast<int32_t*>(target + kSizeY));
         }
 
+        void* __fastcall ConstructDetour(const void* params);
+
+        // Hooked at the first tick, not at start-up: UE4SS finds StaticConstructObject_Internal by the bytes at its
+        // start in its first second, and our hook's jump there made that scan fail. By the first tick UE4SS (if
+        // present) has scanned and hooked it itself; our hook then goes on top of UE4SS's. Nothing that the hook
+        // watches for (the Game Freak logo, the menu's capture) is made before the first tick.
+        void HookConstruct()
+        {
+            // Without this hook the fix still works, just later (the object scan finds the capture).
+            auto construct = safetyhook::InlineHook::create(Engine::StaticConstructObjectAddress(), reinterpret_cast<void*>(&ConstructDetour));
+            if (construct) {
+                g_construct = std::move(*construct);
+                LOG_INFO("Hook: StaticConstructObject_Internal hooked");
+            } else {
+                LOG_WARN("Hook: StaticConstructObject_Internal could not be hooked (safetyhook error {}); the scan alone finds the capture",
+                         static_cast<int>(construct.error().type));
+            }
+        }
+
         void OnTick()
         {
             ++g_frame;
@@ -305,6 +324,7 @@ namespace MenuFix
                 }
                 g_ready = SetupMenu();
                 IntroSkip::Setup();
+                HookConstruct();
                 LOG_INFO("Setup done at frame {} in {:.1f} ms{}{}", g_frame,
                          std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count(),
                          g_ready ? "" : "; the menu fix stays out", Config::LogOnly ? "; LogOnly: watching, changing nothing" : "");
@@ -369,16 +389,7 @@ namespace MenuFix
             return false;
         }
         g_tick = std::move(*hook);
-        LOG_INFO("Hook: UGameEngine::Tick hooked");
-        // Without this one the fix still works, just later (the object scan finds the capture).
-        auto construct = safetyhook::InlineHook::create(Engine::StaticConstructObjectAddress(), reinterpret_cast<void*>(&ConstructDetour));
-        if (construct) {
-            g_construct = std::move(*construct);
-            LOG_INFO("Hook: StaticConstructObject_Internal hooked");
-        } else {
-            LOG_WARN("Hook: StaticConstructObject_Internal could not be hooked (safetyhook error {}); the scan alone finds the capture",
-                     static_cast<int>(construct.error().type));
-        }
+        LOG_INFO("Hook: UGameEngine::Tick hooked; StaticConstructObject_Internal follows at the first tick");
         return true;
     }
 }

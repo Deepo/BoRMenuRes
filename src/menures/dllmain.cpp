@@ -11,14 +11,14 @@
 // The preview is rendered into a 1024x1024 image and stretched to ~2000 pixels high on a 5120x2160 screen, with
 // unsmoothed hair dither and blocky shadows. While the menu is open the plugin renders it at 4096x4096 on screens
 // about 2160 pixels tall, 2048x2048 on smaller ones ([Preview] Size = Auto), and doubles the shadow resolution
-// settings, putting them back when the menu closes
-// (menu_fix.cpp). It also skips the start-up video and Game Freak logo the way the game's click-to-skip does, once
-// the game allows it (intro_skip.cpp).
+// settings, putting them back when the menu closes (menu_fix.cpp). It also skips the start-up video and Game Freak
+// logo the way the game's click-to-skip does, once the game allows it (intro_skip.cpp).
 //
-// Loaded by our own ASI loader (dsound.dll, src/asiloader) - or Ultimate ASI Loader - from the game folder at
-// start-up. Made for the Xbox app / PC Game Pass build (1.1.1.0 and 1.1.2.0; the Steam build untested); the engine
-// functions it needs are found by byte pattern (engine.cpp), and if any is missing the game is left untouched and the
-// log says so, listing the closest places it found. Files: BoRMenuRes.ini (read) and BoRMenuRes.log (previous run: .prev.log) next to the plugin.
+// Loaded by an ASI loader from the game folder at start-up: the release ships Ultimate ASI Loader as dsound.dll (or
+// renamed to winmm.dll when another mod needs dsound.dll). Made for the Xbox app / PC Game Pass build (1.1.1.0 and
+// 1.1.2.0; reported to work on Steam); the engine functions it needs are found by byte pattern (engine.cpp), and if
+// any is missing the game is left untouched and the log says so, listing the closest places it found. Files:
+// BoRMenuRes.ini (read) and BoRMenuRes.log (previous run: .prev.log) next to the plugin.
 // ---------------------------------------------------------------------------
 
 // BeastOfReincarnation-WinGDK-Shipping.exe (Xbox app / PC Game Pass) or -Win64- (Steam).
@@ -29,9 +29,9 @@ static bool IsGameExe(const std::wstring& name)
            _wcsicmp(name.c_str() + name.size() - kSuffix.size(), kSuffix.data()) == 0;
 }
 
-// For a build the plugin hasn't seen yet: whether the exe imports dsound.dll (the plugin's own loader is that file,
-// and must load with the exe, before engine code runs), which dsound.dll is loaded, and how long after the process
-// started the plugin got loaded.
+// For a build or setup the plugin hasn't seen yet: whether the exe imports dsound.dll (the shipped loader is that
+// file, and must load with the exe, before engine code runs), which dsound.dll and winmm.dll (the loader's other
+// name here) are loaded, and how long after the process started the plugin got loaded.
 static void LogStartup(HMODULE exe)
 {
     const auto base = reinterpret_cast<const uint8_t*>(exe);
@@ -48,15 +48,18 @@ static void LogStartup(HMODULE exe)
             if (_stricmp(reinterpret_cast<const char*>(base + d->DllNameRVA), "dsound.dll") == 0)
                 how = "delay-load imported (loads on first use)";
     }
-    wchar_t loader[MAX_PATH] = L"(none)";
-    if (const HMODULE m = GetModuleHandleW(L"dsound.dll"))
-        GetModuleFileNameW(m, loader, MAX_PATH);
+    const auto loaded = [](const wchar_t* name) {
+        wchar_t path[MAX_PATH] = L"(none)";
+        if (const HMODULE m = GetModuleHandleW(name))
+            GetModuleFileNameW(m, path, MAX_PATH);
+        return Logger::Utf8(path);
+    };
     FILETIME created{}, exited{}, kernel{}, user{}, now{};
     GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user);
     GetSystemTimeAsFileTime(&now);
     const auto ticks = [](const FILETIME& t) { return (static_cast<uint64_t>(t.dwHighDateTime) << 32) | t.dwLowDateTime; };
-    LOG_INFO("Start-up: dsound.dll is {} by the exe; loaded: {}; plugin loaded {} ms after the process started", how,
-             Logger::Utf8(loader), (ticks(now) - ticks(created)) / 10000);
+    LOG_INFO("Start-up: dsound.dll is {} by the exe; loaded: {}; winmm.dll: {}; plugin loaded {} ms after the process "
+             "started", how, loaded(L"dsound.dll"), loaded(L"winmm.dll"), (ticks(now) - ticks(created)) / 10000);
 }
 
 template <typename F>

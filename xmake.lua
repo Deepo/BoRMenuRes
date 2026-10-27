@@ -61,29 +61,5 @@ target("BoRMenuRes")
         end
     end
 
--- ===================== the loader: dsound.dll =====================
--- Our own ASI loader (src/asiloader): a dsound.dll stand-in next to the exe that loads every *.asi there at start-up
--- and forwards DirectSound's 12 exports to System32\dsound.dll. Log: BoRAsiLoader.log next to it.
-
-target("BoRAsiLoader")
-    set_kind("shared")
-    set_basename("dsound")
-    add_files("src/asiloader/dsound.cpp", "src/asiloader/dsound.def", "src/asiloader/version.rc")
-    add_syslinks("kernel32")
-    -- the same version.h as the plugin, and the same stale-resource problem as there
-    before_build(function (target)
-        local obj = target:objectfile("src/asiloader/version.rc")
-        if os.isfile(obj) and os.mtime("src/menures/version.h") > os.mtime(obj) then
-            print("version.h changed: recompiling the loader's version.rc")
-            os.rm(obj)
-        end
-    end)
-    if is_plat("windows") then
-        set_toolchains("msvc")
-        add_cxflags("/utf-8", "/W4")
-        set_runtimes(is_mode("release") and "MT" or "MTd")
-        if is_mode("release") then
-            set_optimize("fastest")
-            set_strip("all")
-        end
-    end
+-- The loader shipped next to it is Ultimate ASI Loader (ThirteenAG), as dsound.dll; our own loader
+-- (src/asiloader, 1.0.0) was dropped in 1.0.1 and is in the git history.
